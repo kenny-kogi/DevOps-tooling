@@ -1,0 +1,81 @@
+pipeline {
+    agent any
+
+    environment {
+        VERSION = env.GIT_COMMIT.take(7)
+        DOCKERFILE  = "Dockerfile"
+        GITREPO     = ""
+        CONTEXT     = "pwd"
+        REGISTRY    = "719725293376.dkr.ecr.eu-central-1.amazonaws.com"
+        IMAGE       = "test/library_api"
+        TAG         =  "${REGISTRY}/${IMAGE}:${VERSION}_${BUILD_NUMBER}"
+    }
+
+    stages {
+
+        stage('Run Unit Tests') {
+                steps {
+                    script {
+                        sh "python3 run test.py"
+                    }
+                }
+        }
+
+        stage('Build & Push To ECR') {
+                steps {
+                    script {
+                        sh "docker build -t ${TAG}_dev -f ${DOCKERFILE} ."
+                        withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws_credentials', accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                            sh "aws ecr get-login-password | docker login --username AWS --password-stdin ${REGISTRY}"
+                            sh "docker push ${TAG}_dev"
+                        }
+                    }
+                }
+        }
+
+        // stage('Deploy To Dev Environemnt') {
+        //     steps {
+        //         script {
+        //                 stage('Checkout SCM') {
+        //                     cleanWs()
+        //                     git branch: 'main', changelog: false, 
+        //                     credentialsId: 'fin-connect-jenkins', 
+        //                     poll: false, 
+        //                     url: 'git@bitbucket.org:awamogmbh/fin-app-config.git'
+        //                 }
+
+        //                 stage('Updating Image version in Git') {
+                    
+        //                     sh """yq -i '.spec.template.spec.containers[0].image="${TAG}_dev"' clusters/dev-eks-cluster/deploy/overlays/dev/loan-tracker-fe-tenant/version.yml"""
+        //                     sh 'echo "dev manifest file............"'
+        //                     sh 'cat clusters/dev-eks-cluster/deploy/overlays/dev/loan-tracker-fe-tenant/version.yml'
+                            
+        //                 stage('Commit & Push') {
+        //                            withCredentials([usernamePassword(credentialsId: 'bitbucket_credentials', passwordVariable: 'pass', usernameVariable: 'user')]) {
+        //                             sh """
+        //                                 git config --global --add safe.directory "*"
+        //                                 git config --global user.email "jenkins@fin.africa"
+        //                                 git config --global user.name "Jenkins-CI"
+        //                                 git add clusters/dev-eks-cluster/deploy/overlays/dev/loan-tracker-fe-tenant/version.yml
+        //                                 git commit -m "Updating Loan tracker BE image in ${BUILD_ID}"
+        //                                 git push https://$user:$pass@bitbucket.org/awamogmbh/fin-app-config.git main
+        //                             """    
+        //                          }     
+        //                    }
+        //             }
+        //         }
+        //     }
+        // }
+
+
+
+
+        post {
+            always {
+                    emailext body: "${currentBuild.currentResult}: Job ${env.JOB_NAME} build ${env.BUILD_NUMBER}\n More info at: ${env.BUILD_URL}",
+                    //recipientProviders: [[$class: 'DevelopersRecipientProvider'], [$class: 'RequesterRecipientProvider']],
+                    to: "mwangiken497@gmail.com",
+                    subject: "Jenkins Build ${currentBuild.currentResult}: Job ${env.JOB_NAME}"
+            }
+        }
+}
