@@ -5,13 +5,13 @@ FROM python:3.9-slim
 WORKDIR /app
 
 # Copy the requirements file
-COPY requirements.txt .
+COPY library-api/requirements.txt .
 
 # Install the required packages
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the application code into the container
-COPY . .
+COPY library-api/ .
 
 # Expose the port the Flask app will run on
 EXPOSE 5000
