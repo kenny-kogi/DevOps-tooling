@@ -18,7 +18,7 @@ pipeline {
         stage('Build') {
                 steps {
                     script {
-                        sh "sudo docker build -t ${TAG}_dev -f ${DOCKERFILE} ."
+                        sh "docker build -t ${TAG}_dev -f ${DOCKERFILE} ."
                     }
                 }
         }
