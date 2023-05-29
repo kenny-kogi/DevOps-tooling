@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         VERSION = env.GIT_COMMIT.take(7)
-        DOCKERFILE  = "Dockerfile"
+        DOCKERFILE  = "library-api/Dockerfile"
         GITREPO     = ""
         CONTEXT     = "pwd"
         REGISTRY    = "719725293376.dkr.ecr.eu-central-1.amazonaws.com"
