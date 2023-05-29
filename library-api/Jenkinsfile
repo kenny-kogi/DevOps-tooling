@@ -26,7 +26,7 @@ pipeline {
         stage('Run Unit Tests') {
                 steps {
                     script {
-                        sh "python3 run test.py"
+                        sh "python3 run library-api/test.py"
                     }
                 }
         }
