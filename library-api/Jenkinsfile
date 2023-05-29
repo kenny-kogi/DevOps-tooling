@@ -13,15 +13,9 @@ pipeline {
 
     stages {
 
-        stage('Run Unit Tests') {
-                steps {
-                    script {
-                        sh "python3 run test.py"
-                    }
-                }
-        }
 
-        stage('Build & Push To ECR') {
+
+        stage('Build') {
                 steps {
                     script {
                         sh "docker build -t ${TAG}_dev -f ${DOCKERFILE} ."
@@ -31,6 +25,26 @@ pipeline {
                         }
                     }
                 }
+        }
+
+        stage('Run Unit Tests') {
+                steps {
+                    script {
+                        sh "python3 run test.py"
+                    }
+                }
+        }
+
+
+        stage("Push to ECR") {
+            steps {
+                script {
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws_credentials', accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                            sh "aws ecr get-login-password | docker login --username AWS --password-stdin ${REGISTRY}"
+                            sh "docker push ${TAG}_dev"
+                        }
+                }
+            }
         }
 
         // stage('Deploy To Dev Environemnt') {
