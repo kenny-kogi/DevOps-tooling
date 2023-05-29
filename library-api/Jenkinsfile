@@ -19,10 +19,6 @@ pipeline {
                 steps {
                     script {
                         sh "docker build -t ${TAG}_dev -f ${DOCKERFILE} ."
-                        withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws_credentials', accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-                            sh "aws ecr get-login-password | docker login --username AWS --password-stdin ${REGISTRY}"
-                            sh "docker push ${TAG}_dev"
-                        }
                     }
                 }
         }
