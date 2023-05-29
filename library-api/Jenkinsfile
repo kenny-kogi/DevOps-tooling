@@ -6,7 +6,7 @@ pipeline {
         DOCKERFILE  = "library-api/Dockerfile"
         GITREPO     = ""
         CONTEXT     = "pwd"
-        REGISTRY    = "719725293376.dkr.ecr.eu-central-1.amazonaws.com"
+        REGISTRY    = "719725293376.dkr.ecr.af-south-1.amazonaws.com"
         IMAGE       = "test/library_api"
         TAG         =  "${REGISTRY}/${IMAGE}:${VERSION}_${BUILD_NUMBER}"
     }
