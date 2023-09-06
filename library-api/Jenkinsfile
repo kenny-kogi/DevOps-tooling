@@ -12,9 +12,6 @@ pipeline {
     }
 
     stages {
-
-
-
         stage('Build') {
                 steps {
                     script {
@@ -22,7 +19,6 @@ pipeline {
                     }
                 }
         }
-
         stage('Run Unit Tests') {
                 steps {
                     script {
@@ -30,8 +26,6 @@ pipeline {
                     }
                 }
         }
-
-
         stage("Push to ECR") {
             steps {
                 script {
@@ -63,8 +57,6 @@ pipeline {
                 }
             }
         }
-
-
 }
 
 }
